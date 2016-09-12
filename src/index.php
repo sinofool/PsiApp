@@ -62,7 +62,7 @@ require_once('Psi.php');
   <hr>
   <div class="row">
     <div class="text-center col-md-6 col-md-offset-3">
-      <p>Powered By <a href="https://psiapp.gearzero.ca" >PsiApp</a></p>
+      <p>Powered By <a href="https://github.com/sinofool/PsiApp" >PsiApp</a></p>
     </div>
   </div>
 
