@@ -7,6 +7,8 @@ The existing testing platforms all support iOS and Android but mostly not macOS 
 
 So here is this project.
 
+![psiappscreen](https://cloud.githubusercontent.com/assets/380248/18430046/5eec29e4-7909-11e6-9c57-ee7ba371aec7.png)
+
 # Installation
 This project requires PHP only. No database.
 
