@@ -46,11 +46,11 @@ require_once('Psi.php');
             <div class="panel-footer">
                 <div class="btn-toolbar" role="toolbar">
                     <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-primary" <?php echo $PSI->get_app_link($item, Psi::IOS_NAME)?>>iOS</button>
-                        <button type="button" class="btn btn-success" <?php echo $PSI->get_app_link($item, Psi::ANDROID_NAME)?>>Android</button>
-                        <button type="button" class="btn btn-info" <?php echo $PSI->get_app_link($item, Psi::UWP_NAME)?>>UWP</button>
-                        <button type="button" class="btn btn-warning" <?php echo $PSI->get_app_link($item, Psi::MACOS_NAME)?>>macOS</button>
-                        <button type="button" class="btn btn-danger" <?php echo $PSI->get_app_link($item, Psi::WINDOWS_NAME)?>>Windows</button>
+                        <?php echo $PSI->get_app_button($item, Psi::IOS_NAME)?>
+                        <?php echo $PSI->get_app_button($item, Psi::ANDROID_NAME)?>
+                        <?php echo $PSI->get_app_button($item, Psi::UWP_NAME)?>
+                        <?php echo $PSI->get_app_button($item, Psi::MACOS_NAME)?>
+                        <?php echo $PSI->get_app_button($item, Psi::WINDOWS_NAME)?>
                     </div>
                 </div>
             </div>

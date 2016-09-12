@@ -57,23 +57,23 @@ class Psi
         return is_dir($this->_platform_dir($app_name, $platform));
     }
 
-    function get_app_link($app_name, $platform)
+    function get_app_button($app_name, $platform)
     {
         if ($this->_is_platform_enabled($app_name, $platform)) {
             switch ($platform) {
                 case Psi::IOS_NAME:
-                    return $this->_ios_platform_link($app_name);
+                    return '<button type="button" class="btn btn-primary" ' . $this->_ios_platform_link($app_name) . ">iOS</button>";
                 case Psi::ANDROID_NAME:
-                    return $this->_android_platform_link($app_name);
+                    return '<button type="button" class="btn btn-success" '. $this->_android_platform_link($app_name) .'>Android</button>';
                 case Psi::UWP_NAME:
                     return "onclick=\"start_uwp('" . $app_name . "');\"";
                 case Psi::MACOS_NAME:
-                    return "onclick=\"start_macos('" . $app_name . "');\"";
+                    return '<button type="button" class="btn btn-warning" ' . $this->_macos_platform_link($app_name) . '>macOS</button>';
                 case Psi::WINDOWS_NAME:
                     return "onclick=\"start_windows('" . $app_name . "');\"";
             }
         } else {
-            return 'disabled';
+            return '';
         }
     }
 
@@ -92,7 +92,16 @@ class Psi
         if ($latest_file == null) return "disabled";
 
         $plist_link = $this->base_https_link() . "iosplist.php?app_name=" . $app_name . "&ipa_name=" . $latest_file;
+        $plist_link = "itms-services://?action=download-manifest&url=" . urlencode($plist_link);
         return "onclick=\"start_ios('" . $plist_link . "');\"";
+    }
+
+    function _macos_platform_link($app_name)
+    {
+        $platform_dir = $this->_platform_dir($app_name, PSi::MACOS_NAME);
+        $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".app.zip");
+        if ($latest_file == null) return "disabled";
+        return "onclick=\"start_macos('" . $app_name . "', '" . $latest_file . "');\"";
     }
 
     function base_https_link()
@@ -136,7 +145,7 @@ class Psi
             $i = 0;
             if ($meta) {
                 while (($line = fgets($meta)) !== false) {
-                    $ret[$i++] = $meta->fgets();
+                    $ret[$i++] = $line;
                 }
                 fclose($meta);
             } else {
@@ -200,7 +209,7 @@ class Psi
         foreach (scandir($dir) as $item) {
             if ($item[0] == '.') continue;
             if (!is_file($dir . DIRECTORY_SEPARATOR . $item)) continue;
-            if (strtolower(substr($item, -4)) == $ext) {
+            if (strtolower(substr($item, -strlen($ext))) == $ext) {
                 $file_time = filemtime($dir . DIRECTORY_SEPARATOR . $item);
                 if ($file_time > $latest_time) $latest_file = $item;
             }
