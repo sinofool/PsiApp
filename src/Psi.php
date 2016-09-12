@@ -66,11 +66,11 @@ class Psi
                 case Psi::ANDROID_NAME:
                     return '<button type="button" class="btn btn-success" '. $this->_android_platform_link($app_name) .'>Android</button>';
                 case Psi::UWP_NAME:
-                    return "onclick=\"start_uwp('" . $app_name . "');\"";
+                    return '<button type="button" class="btn btn-info" ' . $this->_uwp_platform_link($app_name) . '>UWP</button>';
                 case Psi::MACOS_NAME:
                     return '<button type="button" class="btn btn-warning" ' . $this->_macos_platform_link($app_name) . '>macOS</button>';
                 case Psi::WINDOWS_NAME:
-                    return "onclick=\"start_windows('" . $app_name . "');\"";
+                    return '<button type="button" class="btn btn-danger" ' . $this->_windows_platform_link($app_name) . '>Windows</button>';
             }
         } else {
             return '';
@@ -96,12 +96,28 @@ class Psi
         return "onclick=\"start_ios('" . $plist_link . "');\"";
     }
 
+    function _uwp_platform_link($app_name)
+    {
+        $platform_dir = $this->_platform_dir($app_name, PSi::UWP_NAME);
+        $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".appx");
+        if ($latest_file == null) return "disabled";
+        return "onclick=\"start_uwp('" . $app_name . "', '" . $latest_file . "');\"";
+    }
+
     function _macos_platform_link($app_name)
     {
         $platform_dir = $this->_platform_dir($app_name, PSi::MACOS_NAME);
         $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".app.zip");
         if ($latest_file == null) return "disabled";
         return "onclick=\"start_macos('" . $app_name . "', '" . $latest_file . "');\"";
+    }
+
+    function _windows_platform_link($app_name)
+    {
+        $platform_dir = $this->_platform_dir($app_name, PSi::WINDOWS_NAME);
+        $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".application");
+        if ($latest_file == null) return "disabled";
+        return "onclick=\"start_windows('" . $app_name . "', '" . $latest_file . "');\"";
     }
 
     function base_https_link()
