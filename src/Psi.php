@@ -184,7 +184,7 @@ class Psi
         while ($zip_entry = zip_read($zip))
         {
             $fileinfo = pathinfo(zip_entry_name($zip_entry));
-            if ($fileinfo['basename'] == "Info.plist")
+            if ($fileinfo['basename'] == "Info.plist" && preg_match('/^Payload\/.*\.app$/', $fileinfo['dirname']))
             {
                 $plist_content = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
                 require_once("lib/CFPropertyList/CFPropertyList.php");
