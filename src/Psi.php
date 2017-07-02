@@ -22,12 +22,14 @@ class Psi
     {
         $dataDir = $this->_data_dir();
         if (!is_dir($dataDir)) return array();
-        $ret = array();
+        $apps = array();
         foreach (scandir($dataDir) as $subdir) {
             if ($subdir[0] == '.') continue;
-            $ret[] = $subdir;
+            $apps[$subdir] = filemtime($dataDir . DIRECTORY_SEPARATOR . $subdir);
         }
-        return $ret;
+        arsort($apps);
+        $ret = array_keys($apps);
+        return ($ret) ? $ret : array();
     }
 
     function _data_dir()
@@ -47,9 +49,27 @@ class Psi
 
     function get_app_info($app_name)
     {
-        $infoFile = $this->_app_dir($app_name) . DIRECTORY_SEPARATOR . ".psi_info";
-        if (!is_file($infoFile)) return $app_name . ' Builds';
-        return file_get_contents($infoFile);
+        $app_dir = $this->_app_dir($app_name);
+        $infoFile = $app_dir . DIRECTORY_SEPARATOR . ".psi_info";
+        if (is_file($infoFile)) { 
+            return file_get_contents($infoFile);
+        } else {
+            $changelog = '';
+            $platforms = array();
+            foreach (scandir($app_dir) as $platform) {
+                if ($platform[0] == '.') continue;
+                $platforms[$platform] = filemtime($app_dir . DIRECTORY_SEPARATOR . $platform);
+            }
+            arsort($platforms);
+
+            foreach (array_keys($platforms) as $platform) {
+                $platform_log = $this->get_app_changelog($app_name, $platform);
+                if ($platform_log) {
+                    $changelog .= $platform_log . "\n";
+                }
+            }
+            return $changelog;
+        }
     }
 
     function _is_platform_enabled($app_name, $platform)
@@ -118,6 +138,95 @@ class Psi
         $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".application");
         if ($latest_file == null) return "disabled";
         return "onclick=\"start_windows('" . $app_name . "', '" . $latest_file . "');\"";
+    }
+
+    function get_app_changelog($app_name, $platform)
+    {
+        if ($this->_is_platform_enabled($app_name, $platform)) {
+            switch ($platform) {
+                case Psi::IOS_NAME:
+                    return $this->_ios_platform_changelog($app_name);
+                case Psi::ANDROID_NAME:
+                    return $this->_android_platform_changelog($app_name);
+                case Psi::UWP_NAME:
+                    return $this->_uwp_platform_changelog($app_name);
+                case Psi::MACOS_NAME:
+                    return $this->_macos_platform_changelog($app_name);
+                case Psi::WINDOWS_NAME:
+                    return $this->_windows_platform_changelog($app_name);
+            }
+        } else {
+            return FALSE;
+        }
+    }
+
+    function _android_platform_changelog($app_name)
+    {
+        $platform_dir = $this->_platform_dir($app_name, PSi::ANDROID_NAME);
+        $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".apk");
+        if ($latest_file == null) return FALSE;
+        $dt = $this->time_since(filemtime($platform_dir . DIRECTORY_SEPARATOR . $latest_file));
+        return "Updated $latest_file $dt ago";
+    }
+
+    function _ios_platform_changelog($app_name)
+    {
+        $platform_dir = $this->_platform_dir($app_name, PSi::IOS_NAME);
+        $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".ipa");
+        if ($latest_file == null) return FALSE;
+        $dt = $this->time_since(filemtime($platform_dir . DIRECTORY_SEPARATOR . $latest_file));
+        return "Updated $latest_file $dt ago";
+    }
+
+    function _uwp_platform_changelog($app_name)
+    {
+        $platform_dir = $this->_platform_dir($app_name, PSi::UWP_NAME);
+        $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".appx");
+        if ($latest_file == null) return FALSE;
+        $dt = $this->time_since(filemtime($platform_dir . DIRECTORY_SEPARATOR . $latest_file));
+        return "Updated $latest_file $dt ago";
+    }
+
+    function _macos_platform_changelog($app_name)
+    {
+        $platform_dir = $this->_platform_dir($app_name, PSi::MACOS_NAME);
+        $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".app.zip");
+        if ($latest_file == null) return FALSE;
+        $dt = $this->time_since(filemtime($platform_dir . DIRECTORY_SEPARATOR . $latest_file));
+        return "Updated $latest_file $dt ago";
+    }
+
+    function _windows_platform_changelog($app_name)
+    {
+        $platform_dir = $this->_platform_dir($app_name, PSi::WINDOWS_NAME);
+        $latest_file = $this->_find_latest_file_with_ext($platform_dir, ".application");
+        if ($latest_file == null) return FALSE;
+        $dt = $this->time_since(filemtime($platform_dir . DIRECTORY_SEPARATOR . $latest_file));
+        return "Updated $latest_file $dt ago";
+    }
+
+    function time_since($timestamp) {
+        $since = time() - $timestamp;
+        $chunks = array(
+            array(60 * 60 * 24 * 365 , 'year'),
+            array(60 * 60 * 24 * 30 , 'month'),
+            array(60 * 60 * 24 * 7, 'week'),
+            array(60 * 60 * 24 , 'day'),
+            array(60 * 60 , 'hour'),
+            array(60 , 'minute'),
+            array(1 , 'second')
+        );
+
+        for ($i = 0, $j = count($chunks); $i < $j; $i++) {
+            $seconds = $chunks[$i][0];
+            $name = $chunks[$i][1];
+            if (($count = floor($since / $seconds)) != 0) {
+                break;
+            }
+        }
+
+        $print = ($count == 1) ? '1 '.$name : "$count {$name}s";
+        return $print;
     }
 
     function base_https_link()
