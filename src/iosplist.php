@@ -5,7 +5,6 @@ include "Psi.php";
 $PSI = new \ca\gearzero\psiapp\Psi();
 
 $plist = $PSI->parse_ipa($app_name, $ipa_name);
-
 header("Content-Type: application/xml");
 ?><?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -21,7 +20,8 @@ header("Content-Type: application/xml");
                         <string>software-package</string>
                         <key>url</key>
                         <string><?php echo $plist[0] ?></string>
-                    </dict><?php if (sizeof($plist) > 4) { ?>
+                    </dict>
+<?php if (sizeof($plist) > 4) { ?>
                     <dict>
                         <key>kind</key>
                         <string>display-image</string>
@@ -34,7 +34,7 @@ header("Content-Type: application/xml");
                         <key>url</key>
                         <string><?php echo $plist[5] ?></string>
                     </dict>
-                    <?php } ?>
+<?php } ?>
                 </array>
                 <key>metadata</key>
                 <dict>

@@ -267,10 +267,10 @@ class Psi
 
             $meta_file = $ipa_cache_dir . DIRECTORY_SEPARATOR . 'metadata';
             $meta = fopen($meta_file, "r");
-            $i = 0;
+            $i = 1;
             if ($meta) {
                 while (($line = fgets($meta)) !== false) {
-                    $ret[$i++] = $line;
+                    $ret[$i++] = trim($line);
                 }
                 fclose($meta);
             } else {
@@ -298,7 +298,8 @@ class Psi
                 $plist_content = zip_entry_read($zip_entry, zip_entry_filesize($zip_entry));
                 require_once("lib/CFPropertyList/CFPropertyList.php");
                 $plist = new CFPropertyList();
-                $plist->parseBinary($plist_content);
+                $plist->parse($plist_content);
+
                 $plist_array = $plist->toArray();
                 $ret[1] = $plist_array['CFBundleIdentifier'];
                 $ret[2] = $plist_array['CFBundleVersion'];
