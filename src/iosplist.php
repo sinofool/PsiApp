@@ -46,7 +46,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
                     <key>kind</key>
                     <string>software</string>
                     <key>title</key>
-                    <string><?php echo $plist[3] ?></string>
+                    <string><?php echo $plist[3] ?>Beta</string>
                 </dict>
             </dict>
         </array>
